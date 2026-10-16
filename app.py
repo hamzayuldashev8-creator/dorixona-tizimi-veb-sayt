@@ -6,7 +6,7 @@ from google import genai
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key_123'
 
-# Render'dagi DATABASE_URL ni olish va PostgreSQL drayverini to'g'rilash
+# Render'dagi PostgreSQL bazasini avtomatik aniqlash va ulash
 db_url = os.environ.get('DATABASE_URL', 'sqlite:///pharmacy.db')
 
 if db_url:
@@ -57,10 +57,23 @@ with app.app_context():
 def index():
     search_query = request.args.get('search', '')
     if search_query:
-        medicines = Medicine.query.filter(Medicine.name.contains(search_query)).all()
+        medicines = Medicine.query.filter(Medicine.name.icontains(search_query)).all()
     else:
         medicines = Medicine.query.all()
     return render_template('index.html', medicines=medicines, search_query=search_query)
+
+
+# Dorini sotish (sonini 1 taga kamaytirish)
+@app.route('/sell/<int:id>')
+def sell_medicine(id):
+    med = Medicine.query.get_or_404(id)
+    if med.quantity > 0:
+        med.quantity -= 1
+        db.session.commit()
+        flash(f"{med.name} muvaffaqiyatli sotildi!", "success")
+    else:
+        flash(f"{med.name} omborda qolmagan!", "danger")
+    return redirect(url_for('index'))
 
 
 # Yangi dori qo'shish (AI integratsiyasi bilan)
@@ -74,7 +87,6 @@ def add_medicine():
         expiration_date = request.form['expiration_date']
         description = request.form['description']
 
-        # Agar izoh bo'sh bo'lsa, AI avtomatik ma'lumot to'ldiradi
         if not description:
             description = get_ai_medicine_advice(name)
 
