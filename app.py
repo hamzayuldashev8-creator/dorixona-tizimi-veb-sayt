@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from google import genai
@@ -47,12 +48,21 @@ class Medicine(db.Model):
     description = db.Column(db.Text, nullable=True)
 
 
+# Sotuvlar tarixi va jami tushum modeli
+class Sale(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    medicine_name = db.Column(db.String(100), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    total_price = db.Column(db.Float, nullable=False)
+    date = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 # Jadvallarni avtomatik yaratish
 with app.app_context():
     db.create_all()
 
 
-# Bosh sahifa - Dorilar ro'yxati
+# Bosh sahifa - Dorilar ro'yxati va Statistika
 @app.route('/')
 def index():
     search_query = request.args.get('search', '')
@@ -60,19 +70,38 @@ def index():
         medicines = Medicine.query.filter(Medicine.name.icontains(search_query)).all()
     else:
         medicines = Medicine.query.all()
-    return render_template('index.html', medicines=medicines, search_query=search_query)
+
+    # Jami tushumni hisoblash
+    sales = Sale.query.all()
+    total_revenue = sum(sale.total_price for sale in sales)
+
+    today_str = datetime.now().strftime('%Y-%m-%d')
+
+    return render_template('index.html', medicines=medicines, search_query=search_query, total_revenue=total_revenue,
+                           today_str=today_str)
 
 
-# Dorini sotish (sonini 1 taga kamaytirish)
-@app.route('/sell/<int:id>')
+# Dorini sotish (Nechta sotilganini kiritish bilan)
+@app.route('/sell/<int:id>', methods=['POST'])
 def sell_medicine(id):
     med = Medicine.query.get_or_404(id)
-    if med.quantity > 0:
-        med.quantity -= 1
+    sell_qty = int(request.form.get('quantity', 1))
+
+    if sell_qty <= 0:
+        flash("Sotilayotgan dori miqdori 1 dan kam bo'lishi mumkin emas!", "danger")
+    elif med.quantity >= sell_qty:
+        med.quantity -= sell_qty
+        sale_total = med.price * sell_qty
+
+        # Sotuvni tarixga va tushumga qo'shish
+        new_sale = Sale(medicine_name=med.name, quantity=sell_qty, total_price=sale_total)
+        db.session.add(new_sale)
         db.session.commit()
-        flash(f"{med.name} muvaffaqiyatli sotildi!", "success")
+
+        flash(f"{med.name} - {sell_qty} dona muvaffaqiyatli sotildi! Tushum: {sale_total:,.0f} so'm", "success")
     else:
-        flash(f"{med.name} omborda qolmagan!", "danger")
+        flash(f"Omborda yetarli dori yo'q! Mavjud: {med.quantity} dona.", "danger")
+
     return redirect(url_for('index'))
 
 

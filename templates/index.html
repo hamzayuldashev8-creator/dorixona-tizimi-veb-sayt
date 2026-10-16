@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PharmSys Web Dashboard - Dorixona Boshqaruv</title>
+    <title>PharmSys Web Dashboard - Admin Panel</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,9 +17,9 @@
             <span class="text-sm font-medium text-slate-300">Web Dashboard</span>
         </div>
         <div class="flex items-center space-x-4 text-sm text-slate-300">
-            <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-2">
-                <i class="fa-solid fa-user-gear text-emerald-400"></i>
-                <span class="font-semibold text-white">Yuldashev Hamza</span>
+            <div class="bg-slate-800 px-3.5 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-2 shadow-sm">
+                <i class="fa-solid fa-user-shield text-emerald-400"></i>
+                <span class="font-bold text-white">Admin: Yuldashev Hamza</span>
             </div>
         </div>
     </header>
@@ -46,29 +46,26 @@
                 <div>
                     <div class="flex items-center space-x-2">
                         <h1 class="text-xl font-bold text-slate-900">PharmSys</h1>
-                        <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">v2.4</span>
+                        <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">v2.4 Admin</span>
                     </div>
-                    <p class="text-xs text-slate-500 font-medium">Dorixona Boshqaruv Veb-Tizimi</p>
+                    <p class="text-xs text-slate-500 font-medium">Dorixona Boshqaruv Veb-Tizimi (Admin Paneli)</p>
                 </div>
             </div>
             <div class="text-right hidden md:block">
-                <div class="text-sm font-bold text-slate-700" id="live-clock">03:50:00</div>
-                <div class="text-xs text-slate-400">2026-10-17</div>
+                <div class="text-sm font-bold text-slate-700" id="live-clock">00:00:00</div>
+                <div class="text-xs text-slate-400">{{ today_str }}</div>
             </div>
         </div>
 
         <!-- Statistics Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
 
             <!-- Card 1: Jami Dorilar -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-start">
                 <div>
                     <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Jami Dorilar</p>
-                    <h3 class="text-3xl font-extrabold text-slate-900 mt-2">{{ medicines|length }}</h3>
-                    <p class="text-xs text-slate-500 mt-2 flex items-center space-x-1">
-                        <i class="fa-solid fa-layer-group text-slate-400"></i>
-                        <span>Barcha turdagi dori turlari</span>
-                    </p>
+                    <h3 class="text-2xl font-extrabold text-slate-900 mt-2">{{ medicines|length }}</h3>
+                    <p class="text-xs text-slate-500 mt-2">Dori turlari</p>
                 </div>
                 <div class="w-10 h-10 bg-sky-50 text-sky-600 rounded-xl flex items-center justify-center text-lg">
                     <i class="fa-solid fa-capsules"></i>
@@ -79,13 +76,10 @@
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-start">
                 <div>
                     <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Kam Qolgan (&lt;10)</p>
-                    <h3 class="text-3xl font-extrabold text-amber-600 mt-2">
+                    <h3 class="text-2xl font-extrabold text-amber-600 mt-2">
                         {{ medicines | selectattr('quantity', 'lt', 10) | list | length }}
                     </h3>
-                    <p class="text-xs text-amber-600/90 mt-2 flex items-center space-x-1 font-medium">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                        <span>Qoldiq kamaygan dorilar</span>
-                    </p>
+                    <p class="text-xs text-amber-600 mt-2">Qoldiq oz qolgan</p>
                 </div>
                 <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-lg">
                     <i class="fa-solid fa-triangle-exclamation"></i>
@@ -98,41 +92,49 @@
                     <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Muddati O'tgan</p>
                     {% set expired_count = namespace(value=0) %}
                     {% for med in medicines %}
-                        {% if med.expiration_date < '2026-10-17' %}
+                        {% if med.expiration_date < today_str %}
                             {% set expired_count.value = expired_count.value + 1 %}
                         {% endif %}
                     {% endfor %}
-                    <h3 class="text-3xl font-extrabold {% if expired_count.value > 0 %}text-rose-600{% else %}text-slate-700{% endif %} mt-2">
+                    <h3 class="text-2xl font-extrabold {% if expired_count.value > 0 %}text-rose-600{% else %}text-slate-700{% endif %} mt-2">
                         {{ expired_count.value }}
                     </h3>
-                    <p class="text-xs {% if expired_count.value > 0 %}text-rose-600{% else %}text-slate-400{% endif %} mt-2 flex items-center space-x-1 font-medium">
-                        <i class="fa-solid fa-clock-rotate-left"></i>
-                        <span>Muddatini tekshirish zarur</span>
-                    </p>
+                    <p class="text-xs text-slate-400 mt-2">Tekshirish zarur</p>
                 </div>
                 <div class="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center text-lg">
                     <i class="fa-solid fa-calendar-xmark"></i>
                 </div>
             </div>
 
-            <!-- Card 4: Umumiy Qiymat -->
+            <!-- Card 4: Ombor Qiymati -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-start">
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Umumiy Qiymat</p>
-                    <h3 class="text-2xl font-extrabold text-emerald-600 mt-2">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Ombor Qiymati</p>
+                    <h3 class="text-lg font-extrabold text-emerald-600 mt-2">
                         {% set total = namespace(value=0) %}
                         {% for med in medicines %}
                             {% set total.value = total.value + (med.price * med.quantity) %}
                         {% endfor %}
                         {{ "{:,.0f}".format(total.value) }} so'm
                     </h3>
-                    <p class="text-xs text-slate-500 mt-2 flex items-center space-x-1">
-                        <i class="fa-solid fa-chart-line text-slate-400"></i>
-                        <span>Ombor umumiy summasi</span>
-                    </p>
+                    <p class="text-xs text-slate-500 mt-2">Umumiy dori summasi</p>
                 </div>
                 <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-lg">
                     <i class="fa-solid fa-shop"></i>
+                </div>
+            </div>
+
+            <!-- Card 5: Jami Tushum -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-indigo-100 bg-indigo-50/30 flex justify-between items-start">
+                <div>
+                    <p class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Jami Tushum</p>
+                    <h3 class="text-lg font-extrabold text-indigo-700 mt-2">
+                        {{ "{:,.0f}".format(total_revenue) }} so'm
+                    </h3>
+                    <p class="text-xs text-indigo-500 mt-2">Barchasi sotilganlar</p>
+                </div>
+                <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-sack-dollar"></i>
                 </div>
             </div>
 
@@ -143,7 +145,7 @@
             <div class="flex space-x-6 border-b border-slate-100 w-full md:w-auto">
                 <a href="#" class="pb-3 border-b-2 border-emerald-600 text-emerald-600 font-semibold text-sm flex items-center space-x-2">
                     <i class="fa-solid fa-boxes-stacked"></i>
-                    <span>Dorilar Ombori</span>
+                    <span>Dorilar Ombori Boshqaruvi</span>
                 </a>
             </div>
 
@@ -176,7 +178,7 @@
                             <th class="py-3 px-6">Soni</th>
                             <th class="py-3 px-6">Muddati</th>
                             <th class="py-3 px-6">AI Ma'lumot / Tavsif</th>
-                            <th class="py-3 px-6 text-right">Amallar</th>
+                            <th class="py-3 px-6 text-right">Admin Amallari</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 text-sm">
@@ -201,10 +203,10 @@
                                     {{ med.description }}
                                 </td>
                                 <td class="py-4 px-6 text-right space-x-2">
-                                    <!-- Sotish tugmasi -->
-                                    <a href="{{ url_for('sell_medicine', id=med.id) }}" class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-2.5 py-1.5 rounded-lg font-semibold text-xs transition-colors" title="Sotish">
-                                        <i class="fa-solid fa-cart-shopping"></i> Sotish
-                                    </a>
+                                    <!-- Admin: Dori sotish / ayirish -->
+                                    <button onclick="openSellModal('{{ med.id }}', '{{ med.name }}', '{{ med.quantity }}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg font-semibold text-xs shadow-sm transition-colors" title="Dori ayirish / Sotish">
+                                        <i class="fa-solid fa-minus"></i> Sotish / Ayirish
+                                    </button>
                                     <a href="{{ url_for('edit_medicine', id=med.id) }}" class="text-sky-600 hover:text-sky-800 p-1.5 rounded-lg hover:bg-sky-50 transition-colors" title="Tahrirlash">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
@@ -231,6 +233,25 @@
 
     </main>
 
+    <!-- Admin Sotish / Ayirish Modal Oynasi -->
+    <div id="sellModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
+            <h3 class="text-lg font-bold text-slate-900 mb-1" id="modalMedName">Dorini Sotish / Ayirish</h3>
+            <p class="text-xs text-slate-500 mb-4" id="modalMedStock">Mavjud qoldiq: 0 dona</p>
+
+            <form id="sellForm" method="POST" action="">
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-slate-600 mb-2">Ayiriladigan (sotiladigan) miqdorni kiriting:</label>
+                    <input type="number" name="quantity" min="1" value="1" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 font-bold text-slate-800">
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeSellModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold rounded-xl">Bekor qilish</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl shadow-md shadow-emerald-600/20">Tasdiqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         setInterval(() => {
             const now = new Date();
@@ -238,6 +259,19 @@
             const clockEl = document.getElementById('live-clock');
             if (clockEl) clockEl.innerText = timeString;
         }, 1000);
+
+        function openSellModal(id, name, stock) {
+            document.getElementById('sellModal').classList.remove('hidden');
+            document.getElementById('sellModal').classList.add('flex');
+            document.getElementById('modalMedName').innerText = name + " dorisini sotish / ayirish";
+            document.getElementById('modalMedStock').innerText = "Ombordagi qoldiq: " + stock + " dona";
+            document.getElementById('sellForm').action = "/sell/" + id;
+        }
+
+        function closeSellModal() {
+            document.getElementById('sellModal').classList.add('hidden');
+            document.getElementById('sellModal').classList.remove('flex');
+        }
     </script>
 </body>
 </html>
