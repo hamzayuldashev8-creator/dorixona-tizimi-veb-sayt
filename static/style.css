@@ -1,0 +1,49 @@
+/* Asosiy fon va shrift */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f6f9;
+    color: #333333;
+}
+
+/* Kartochkalar (Card) sozlamalari */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    background-color: #ffffff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Jadval (Table) sozlamalari */
+.table {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table th {
+    font-weight: 600;
+    background-color: #f8f9fa;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Tugmalar va inputlarni yumaloqroq qilish */
+.form-control, .form-select, .btn {
+    border-radius: 8px;
+    padding: 0.6rem 0.9rem;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+/* Silliq o'tish effekti */
+.btn {
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}

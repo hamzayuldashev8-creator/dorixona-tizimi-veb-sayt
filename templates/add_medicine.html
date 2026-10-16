@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-success text-white fw-bold">
+                <i class="bi bi-plus-square me-2"></i>Yangi Dori Qo'shish
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Dori Nomi</label>
+                        <input type="text" name="name" class="form-control" required placeholder="Masalan: Paratsetamol">
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Kategoriya</label>
+                            <input type="text" name="category" class="form-control" required placeholder="Masalan: Og'riqsizlantiruvchi">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Narxi (so'mda)</label>
+                            <input type="number" step="100" name="price" class="form-control" required placeholder="15000">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Soni (Zaxira)</label>
+                            <input type="number" name="quantity" class="form-control" required placeholder="50">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Amal qilish muddati</label>
+                            <input type="date" name="expiration_date" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Qo'shimcha izoh</label>
+                        <textarea name="description" class="form-control" rows="3" placeholder="Qabul qilish tartibi yoki doza haqida ma'lumot..."></textarea>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Bekor qilish</a>
+                        <button type="submit" class="btn btn-success px-4">Saqlash</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white fw-bold">
+                <i class="bi bi-pencil-square me-2"></i>Dori Ma'lumotlarini Tahrirlash
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Dori Nomi</label>
+                        <input type="text" name="name" class="form-control" value="{{ med.name }}" required>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Kategoriya</label>
+                            <input type="text" name="category" class="form-control" value="{{ med.category }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Narxi (so'mda)</label>
+                            <input type="number" step="100" name="price" class="form-control" value="{{ med.price }}" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Soni (Zaxira)</label>
+                            <input type="number" name="quantity" class="form-control" value="{{ med.quantity }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Amal qilish muddati</label>
+                            <input type="date" name="expiration_date" class="form-control" value="{{ med.expiration_date }}" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Qo'shimcha izoh</label>
+                        <textarea name="description" class="form-control" rows="3">{{ med.description }}</textarea>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Bekor qilish</a>
+                        <button type="submit" class="btn btn-primary px-4">Yangilash</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
