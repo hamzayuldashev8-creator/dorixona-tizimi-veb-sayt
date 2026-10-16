@@ -6,19 +6,19 @@ from google import genai
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key_123'
 
-# Render'dagi PostgreSQL bazasini avtomatik aniqlash va ulash
+# Render'dagi DATABASE_URL ni olish va PostgreSQL drayverini to'g'rilash
 db_url = os.environ.get('DATABASE_URL', 'sqlite:///pharmacy.db')
-if db_url and db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+if db_url:
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
+    elif db_url.startswith("postgresql://") and not db_url.startswith("postgresql+psycopg2://"):
+        db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-
-# Gunicorn serveri ishga tushganda jadvallar yaratilishi uchun bu yerga qo'yildi
-with app.app_context():
-    db.create_all()
 
 # Gemini AI sozlamasi
 client = genai.Client(api_key="AQ.Ab8RN6LN7UEtSwLHekxRniGN2YBWmuSTBef14CYh-r_BD8QY8A")
@@ -45,6 +45,11 @@ class Medicine(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     expiration_date = db.Column(db.String(20), nullable=False)
     description = db.Column(db.Text, nullable=True)
+
+
+# Jadvallarni avtomatik yaratish
+with app.app_context():
+    db.create_all()
 
 
 # Bosh sahifa - Dorilar ro'yxati
