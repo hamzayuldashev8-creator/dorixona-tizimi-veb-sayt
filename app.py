@@ -1,13 +1,24 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from google import genai
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key_123'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pharmacy.db'
+
+# Render'dagi PostgreSQL bazasini avtomatik aniqlash va ulash
+db_url = os.environ.get('DATABASE_URL', 'sqlite:///pharmacy.db')
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+# Gunicorn serveri ishga tushganda jadvallar yaratilishi uchun bu yerga qo'yildi
+with app.app_context():
+    db.create_all()
 
 # Gemini AI sozlamasi
 client = genai.Client(api_key="AQ.Ab8RN6LN7UEtSwLHekxRniGN2YBWmuSTBef14CYh-r_BD8QY8A")
@@ -16,7 +27,7 @@ client = genai.Client(api_key="AQ.Ab8RN6LN7UEtSwLHekxRniGN2YBWmuSTBef14CYh-r_BD8
 def get_ai_medicine_advice(medicine_name):
     try:
         response = client.models.generate_content(
-            model="gemini-1.5-flash",  # Model nomi gemini-1.5-flash ga almashtirildi
+            model="gemini-1.5-flash",
             contents=f"Qisqacha o'zbek tilida ma'lumot bering: '{medicine_name}' dorisi nima uchun ishlatiladi va qanday qabul qilinadi?",
         )
         return response.text
@@ -108,8 +119,4 @@ def delete_medicine(id):
 
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)
-    with app.app_context():
-        db.create_all()
